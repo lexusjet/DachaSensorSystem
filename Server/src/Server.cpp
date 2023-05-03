@@ -100,13 +100,13 @@ void Server::reciveData(socket_wrapper::Socket connection)
             0
         );
         if(bytesRead <= 0){
-                pollResult = -1;
-                break;
+            pollResult = -1;
+            break;
         }
         recived += bytesRead;
     }
     if(!isStop){
-        if(pollResult != 1 && recived != sizeof(MessageHeader)){
+        if(pollResult != 1){
             std::string errorMassage;
             if(pollResult == 0)
                 errorMassage = "poll timeout";
