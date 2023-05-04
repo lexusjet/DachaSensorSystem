@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <string>
 #include <iostream>
+
 // Format of header
 //      size: 16 bytes
 //
@@ -27,7 +28,7 @@ struct Header{
 };
 
 const size_t MESSEGE_SIZE = 16;
-
+// =============================================================================
 class MessageHeader
 {
     public:

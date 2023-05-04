@@ -29,7 +29,7 @@ int main(int argc, const char **argv)
     if(signal(SIGINT, signalFunction) == SIG_ERR){ return 0;};
     
     dachaServer::Server::DataReciveCallBack onDataRecivedCallback =
-        [](MessageHeader data){ std::cout << data << std::endl; };
+        [](MessageHeader data){ };
     dachaServer::Server::ErrorCallBack onErorrCallback =
         [](std::string erorr){ std::cout << erorr << std::endl; };
     dachaServer::Server::ServerStateChangedCallback onServerStateChangedCallback =

@@ -25,17 +25,20 @@ Server::Server(
     
     if(bind(listeningSocket,(struct sockaddr*) &addres, sizeof(addres)) < 0){
         onErorrCallback(std::string("bind erorr"));
+        LOG("Bind error when creating server. Port " << port << " is occupied");
         return;
     }
 
     if(listen(listeningSocket, backlog) == -1){
         onErorrCallback(std::string("listen start eror"));
+        LOG("");
         return;
     }
 
     pollStruct.events = POLLIN;
     pollStruct.fd = static_cast<int>(listeningSocket);
     onServerStateChangedCallback(Created);
+    LOG("Server created on port " << port);
 }
 
 Server::~Server(){
@@ -45,10 +48,12 @@ Server::~Server(){
     std::unique_lock lock(mutexForMap);
     condtion.wait(lock, [&](){return connectionThreadsMap.empty();}); 
     onServerStateChangedCallback(Stopped);
+    LOG("Server successfully destroyed");
 }
 
 void Server::acceptLoop()
 {
+    LOG("Server start accepting connections " << static_cast<int>(listeningSocket));
     onServerStateChangedCallback(Started);
     while(!isStop){
         if(poll(&pollStruct, 1, 1000) == 0) 
@@ -56,9 +61,8 @@ void Server::acceptLoop()
         SocketDescriptorType newConnection = accept(listeningSocket, nullptr, nullptr);
         //TODO: check connection errors
 
-        // std::unique_lock<std::mutex> lock(mutexForMap);
-        // condtion.wait(lock, [](){return true;});
         std::lock_guard<std::mutex> lock(mutexForMap);
+        LOG("Server accept new connection on socket " << newConnection);
         connectionThreadsMap.emplace(newConnection,
             std::thread(
                 &Server::reciveData,
@@ -66,28 +70,30 @@ void Server::acceptLoop()
                 newConnection
             )
         );
-        // condtion.notify_all();
         
         pollStruct.revents = 0;
     }
+    LOG("Server stop accepting connections");
 }
 
 void dachaServer::Server::start()
 {
     isStop = false;
     listenerThread = std::thread(&Server::acceptLoop, this);
-    
+    LOG("Server started");
 }
 
 void dachaServer::Server::stop()
 {
     isStop = true;
     onServerStateChangedCallback(Stopped);
+    LOG("Server stoped");
 }
 
 
 void Server::reciveData(SocketDescriptorType newConnection)
 {
+    
     socket_wrapper::Socket connection(newConnection);
     MessageHeader message;
     const int timeout = 1000;
@@ -97,7 +103,8 @@ void Server::reciveData(SocketDescriptorType newConnection)
     struct pollfd pfd;
     pfd.events = POLLIN;
     pfd.fd = static_cast<int>(connection);
-    
+
+    LOG("start reciving data on socket " << newConnection);
     while(recived < sizeof(MessageHeader) && !isStop){
         pollResult =  poll(&pfd, 1, timeout);
         if(pollResult != 1) 
@@ -117,18 +124,22 @@ void Server::reciveData(SocketDescriptorType newConnection)
     if(!isStop){
         if(pollResult != 1){
             std::string errorMassage;
-            if(pollResult == 0)
+            if(pollResult == 0){
                 errorMassage = "poll timeout";
-            else
+                LOG("poll timeout on socket" << newConnection);
+            }
+            else{
                 errorMassage = "connection error ";
+                LOG("Connection error on socket" << newConnection);
+            }
             onErrorCallback(errorMassage);
         }
-        else
+        else{
+            LOG("data successfully read from the socket " << newConnection);
             onDataRecivedCallback(message);
+        }
     }
-
-    // std::unique_lock<std::mutex> lock(mutexForMap);
-    // condtion.wait(lock, [](){return true;});
+    
     std::lock_guard lock(mutexForMap);
     connectionThreadsMap[connection].detach();
     connectionThreadsMap.erase(connection);
