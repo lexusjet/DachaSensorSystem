@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <poll.h>
 #include <functional>
+#include <unordered_map>
 #include <string>
 #include <thread>
 #include <mutex>
@@ -13,6 +14,8 @@
 #include <Socket_class/socket_class.h>
 #include <MessageHeader/MessageHeader.h>
 
+
+
 // =============================================================================
 namespace dachaServer
 {
@@ -20,15 +23,23 @@ namespace dachaServer
     class Server
     {
     public:
+        enum State{
+            Created,
+            Stopped,
+            StartListen,
+            Started,
+
+        };
         using DataReciveCallBack = std::function<void (MessageHeader)>;
         using ErrorCallBack = std::function<void (std::string)>;
-    
+        using ServerStateChangedCallback = std::function<void (State)>;
     public:
         Server(
             int port,
             int backlog,
             const DataReciveCallBack& onDataRecivedCallback,
-            const ErrorCallBack& onErorrCallback);
+            const ErrorCallBack& onErorrCallback,
+            const ServerStateChangedCallback& onServerStateChangedCallback);
         ~Server();
         Server() = delete;
         Server(const Server &) = delete;
@@ -42,7 +53,7 @@ namespace dachaServer
 
     private:
         void acceptLoop();
-        void reciveData(socket_wrapper::Socket connection);
+        void reciveData(SocketDescriptorType sock);
 
         // void onReadDone(std::string);
         // void onReadError(std::string);
@@ -57,6 +68,8 @@ namespace dachaServer
         DataReciveCallBack onDataRecivedCallback;
         // колбек если произошла какая-то ошибка
         ErrorCallBack onErrorCallback;
+        // колбек при изминении состояния сервера
+        ServerStateChangedCallback onServerStateChangedCallback;
 
     private:
         // флаг для остановки 
@@ -67,7 +80,7 @@ namespace dachaServer
         std::condition_variable condtion;
         // дескриптор сокета асоциированный с потокм
         // в котором происходи прием данных из него
-        std::unordered_map<int, std::thread> connectionThreadsMap;
+        std::unordered_map<SocketDescriptorType, std::thread> connectionThreadsMap;
     };
 
 }// end of namesapce
