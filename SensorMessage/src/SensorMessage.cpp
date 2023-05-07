@@ -1,47 +1,47 @@
-#include <MessageHeader/MessageHeader.h>
+#include <SensorMessage/SensorMessage.h>
 
-MessageHeader::MessageHeader()
+SensorMessage::SensorMessage()
 {
     header.version = 0;
-    header.local = 0;
-    header.numberInLocalization = 0;
+    header.location = 0;
+    header.numberInLocation = 0;
     header.dataType = 0;
     header.data = 0;
     header.reserv = 0;
     header.extension = 0;
 }
 
-MessageHeader::~MessageHeader()
+SensorMessage::~SensorMessage()
 {
-    //dtor
+
 }
 
-MessageHeader::MessageHeader(const MessageHeader& a)
+SensorMessage::SensorMessage(const SensorMessage& a)
 {
     header.version = a.header.version;
-    header.local = a.header.local ;
-    header.numberInLocalization = a.header.numberInLocalization ;
+    header.location = a.header.location ;
+    header.numberInLocation = a.header.numberInLocation ;
     header.dataType = a.header.dataType ;
     header.data = a.header.data ;
     header.extension = a.header.extension ;
     header.reserv = a.header.reserv ;
 }
 
-void MessageHeader::operator=(const MessageHeader& a)
+void SensorMessage::operator=(const SensorMessage& a)
 {
     header.version = a.header.version;
-    header.local = a.header.local;
-    header.numberInLocalization = a.header.numberInLocalization;
+    header.location = a.header.location;
+    header.numberInLocation = a.header.numberInLocation;
     header.dataType = a.header.dataType;
     header.data = a.header.data;
     header.extension = a.header.extension;
     header.reserv = a.header.reserv;
 }
-bool MessageHeader::operator==(const MessageHeader& other) const
+bool SensorMessage::operator==(const SensorMessage& other) const
 {
     return header.version == other.header.version
-            && header.local == other.header.local
-            && header.numberInLocalization == other.header.numberInLocalization
+            && header.location == other.header.location
+            && header.numberInLocation == other.header.numberInLocation
             && header.dataType == other.header.dataType
             && header.data == other.header.data
             && header.extension == other.header.extension
@@ -49,15 +49,15 @@ bool MessageHeader::operator==(const MessageHeader& other) const
 
 }
 
-bool MessageHeader::operator!=(const MessageHeader& other) const
+bool SensorMessage::operator!=(const SensorMessage& other) const
 {
     return !(*this == other);
 }
 
-std::ostream& operator<<(std::ostream& stream, MessageHeader messege){
+std::ostream& operator<<(std::ostream& stream, SensorMessage messege){
     stream << "VERSION : " << static_cast<int>(messege.getVersion()) <<std::endl;
-    stream << "LOCAL : " << static_cast<int>(messege.getLocal()) <<std::endl;
-    stream << "NUMBER IN LOCAL : " << static_cast<int>(messege.getNumberInLocalization()) <<std::endl;
+    stream << "LOCAL : " << static_cast<int>(messege.getLocation()) <<std::endl;
+    stream << "NUMBER IN LOCAL : " << static_cast<int>(messege.getNumberInLocation()) <<std::endl;
     stream << "DATA TYPE : " << static_cast<int>(messege.getDataType()) <<std::endl;
     stream << "DATA : " << static_cast<int>(messege.getData()) <<std::endl;
     stream << "EXTENSION : " << static_cast<int>(messege.getExtension()) <<std::endl;

@@ -8,7 +8,7 @@
 #include <atomic>
 
 #include <Server/Server.h>
-#include <MessageHeader/MessageHeader.h>
+#include <SensorMessage/SensorMessage.h>
 
 #include "Logger.h"
 
@@ -28,21 +28,21 @@ int main(int argc, const char **argv)
 {
     if(signal(SIGINT, signalFunction) == SIG_ERR){ return 0;};
     
-    dachaServer::Server::DataReciveCallBack onDataRecivedCallback =
-        [](MessageHeader data){ };
-    dachaServer::Server::ErrorCallBack onErorrCallback =
+    DachaServer::Server::DataReciveCallBack onDataRecivedCallback =
+        [](SensorMessage data){ };
+    DachaServer::Server::ErrorCallBack onErorrCallback =
         [](std::string erorr){ std::cout << erorr << std::endl; };
-    dachaServer::Server::ServerStateChangedCallback onServerStateChangedCallback =
-        [](dachaServer::Server::State state){ 
+    DachaServer::Server::ServerStateChangedCallback onServerStateChangedCallback =
+        [](DachaServer::Server::State state){ 
                 switch (state)
                 {
-                    case dachaServer::Server::Created:
+                    case DachaServer::Server::Created:
                         break;
-                    case dachaServer::Server::Stopped:
+                    case DachaServer::Server::Stopped:
                         break;
-                    case dachaServer::Server::StartListen:
+                    case DachaServer::Server::StartListen:
                         break;
-                    case dachaServer::Server::Started:
+                    case DachaServer::Server::Started:
                         break;
                     default:
                         break;
@@ -52,7 +52,7 @@ int main(int argc, const char **argv)
     
 
 
-    dachaServer::Server server(3425, 5,
+    DachaServer::Server server(3425, 5,
                             onServerStateChangedCallback,
                             onErorrCallback,
                             onDataRecivedCallback

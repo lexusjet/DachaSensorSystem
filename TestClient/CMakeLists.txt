@@ -40,7 +40,7 @@ add_library(TestClientLib
 
 
 target_link_libraries(TestClientLib
-    PUBLIC MessageHeaderLib
+    PUBLIC SensorMessageLib
 )
 
 target_include_directories(TestClientLib

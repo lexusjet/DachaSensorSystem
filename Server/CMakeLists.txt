@@ -43,7 +43,7 @@ add_library(ServerLib STATIC
 
 target_link_libraries(ServerLib
     PUBLIC SocketWraperLib
-    PUBLIC MessageHeaderLib
+    PUBLIC SensorMessageLib
     PRIVATE Threads::Threads
 )
 

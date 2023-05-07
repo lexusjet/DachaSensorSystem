@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.0)
-project(MessageHeaderLib CXX)
+project(SensorMessageLib CXX)
 
 set(CMAKE_CXX_FLAGS "")
 set(CMAKE_EXE_LINKER_FLAGS "")
@@ -34,11 +34,11 @@ add_compile_options(
     -Wno-unknown-pragmas
 )
 
-add_library(MessageHeaderLib STATIC
-    src/MessageHeader.cpp
-    include/MessageHeader/MessageHeader.h
+add_library(SensorMessageLib STATIC
+    src/SensorMessage.cpp
+    include/SensorMessage/SensorMessage.h
 )
 
-target_include_directories(MessageHeaderLib
+target_include_directories(SensorMessageLib
     PUBLIC include
 )

@@ -3,53 +3,57 @@
 
 #include <iostream>
 
-using namespace dachaServer;
+using namespace DachaServer;
 
 Server::Server(
-    int port,
-    int backlog,
+    const int port,
+    const int backlog,
     const ServerStateChangedCallback& onServerStateChangedCallback,
     const ErrorCallBack& onErorrCallback,
     const DataReciveCallBack& onDataRecivedCallback
     ) 
     : 
-        listeningSocket(std::move(socket_wrapper::Socket(AF_INET, SOCK_STREAM, 0))),
+        m_listeningSocket(std::move(socket_wrapper::Socket(AF_INET, SOCK_STREAM, 0))),
         onServerStateChangedCallback(onServerStateChangedCallback),
         onErrorCallback(onErorrCallback),
         onDataRecivedCallback(onDataRecivedCallback),
-        isStop(false),
+        m_isStop(false),
         m_state(Constructing)
 
 {
-    addres.sin_family = AF_INET;
-    addres.sin_port = htons(port);
-    addres.sin_addr.s_addr = htonl(INADDR_ANY);
+    m_addres.sin_family = AF_INET;
+    m_addres.sin_port = htons(port);
+    m_addres.sin_addr.s_addr = htonl(INADDR_ANY);
     
-    if(bind(listeningSocket,(struct sockaddr*) &addres, sizeof(addres)) < 0){
+    if(bind(m_listeningSocket,(struct sockaddr*) &m_addres, sizeof(m_addres)) < 0){
         onErorrCallback(std::string("Server bind erorr"));
         LOG("Server Bind error when creating server. Port " << port << " is occupied");
+        m_state = FailedToConstruct;
+        onServerStateChangedCallback(m_state);
         return;
     }
 
-    if(listen(listeningSocket, backlog) == -1){
-        onErorrCallback(std::string("Server listen start eror"));
-        LOG("");
+    if(listen(m_listeningSocket, backlog) == -1){
+        onErorrCallback(std::string("Server listen start error"));
+        LOG("Server listen start error");
+        m_state = FailedToConstruct;
+        onServerStateChangedCallback(m_state);
         return;
     }
 
-    pollStruct.events = POLLIN;
-    pollStruct.fd = static_cast<int>(listeningSocket);
+    m_pollStruct.events = POLLIN;
+    m_pollStruct.fd = static_cast<int>(m_listeningSocket);
     m_state = Created;
     onServerStateChangedCallback(m_state);
     LOG("Server created on port " << port);
 }
 
 Server::~Server(){
-    isStop = true;
-    if(listenerThread.joinable())
-        listenerThread.join();
-    std::unique_lock lock(mutexForMap);
-    condtion.wait(lock, [&](){return connectionThreadsMap.empty();}); 
+    m_isStop = true;
+    if(m_listenerThread.joinable())
+        m_listenerThread.join();
+    std::unique_lock lock(m_mutexForMap);
+    m_condtion.wait(lock, [&](){return m_connectionThreadsMap.empty();}); 
     m_state = Destroyed;
     onServerStateChangedCallback(m_state);
     LOG("Server successfully destroyed");
@@ -57,22 +61,22 @@ Server::~Server(){
 
 void Server::acceptLoop()
 {
-    LOG("Server start accepting connections on socket #" << static_cast<int>(listeningSocket));
+    LOG("Server start accepting connections on socket #" << static_cast<int>(m_listeningSocket));
     m_state = Started;
     onServerStateChangedCallback(m_state);
-    while(!isStop){
+    while(!m_isStop){
         if(m_state != StartListen){
             m_state = StartListen;
             onServerStateChangedCallback(m_state);
         }
-        if(poll(&pollStruct, 1, 1000) == 0) 
+        if(poll(&m_pollStruct, 1, 1000) == 0) 
             continue;
-        SocketDescriptorType newConnection = accept(listeningSocket, nullptr, nullptr);
+        SocketDescriptorType newConnection = accept(m_listeningSocket, nullptr, nullptr);
         //TODO: check connection errors
 
-        std::lock_guard<std::mutex> lock(mutexForMap);
+        std::lock_guard<std::mutex> lock(m_mutexForMap);
         LOG("Server accept new connection on socket #" << newConnection);
-        connectionThreadsMap.emplace(newConnection,
+        m_connectionThreadsMap.emplace(newConnection,
             std::thread(
                 &Server::reciveData,
                 this,
@@ -80,34 +84,46 @@ void Server::acceptLoop()
             )
         );
         
-        pollStruct.revents = 0;
+        m_pollStruct.revents = 0;
     }
     m_state = ListenStopped;
     onServerStateChangedCallback(m_state);
     LOG("Server stop accepting connections");
 }
 
-void dachaServer::Server::start()
+void DachaServer::Server::start()
 {
-    isStop = false;
-    listenerThread = std::thread(&Server::acceptLoop, this);
+    if(m_state != Created && m_state != ListenStopped){
+        onErrorCallback("Server: can`t start work");
+        return;
+    }
+    m_isStop = false;
+    m_listenerThread = std::thread(&Server::acceptLoop, this);
     LOG("Server started");
 }
 
-void dachaServer::Server::stop()
+void DachaServer::Server::stop()
 {
-    isStop = true;
+    m_isStop = true;
+    if(m_state == FailedToConstruct){
+        onErrorCallback("Server: nothing to stop");
+    }
     m_state = Stopped;
     onServerStateChangedCallback(Stopped);
-    LOG("Server stoped");
+    LOG("Server: stoped");
 }
 
+size_t DachaServer::Server::numberOfConnections() 
+{
+    std::lock_guard lock(m_mutexForMap);
+    return m_connectionThreadsMap.size();
+}
 
 void Server::reciveData(SocketDescriptorType newConnection)
 {
     
     socket_wrapper::Socket connection(newConnection);
-    MessageHeader message;
+    SensorMessage message;
     const int timeout = 1000;
     size_t recived = 0;
 
@@ -116,14 +132,14 @@ void Server::reciveData(SocketDescriptorType newConnection)
     pfd.events = POLLIN;
     pfd.fd = static_cast<int>(connection);
 
-    LOG("Server start reciving data on socket #" << newConnection);
-    while(recived < sizeof(MessageHeader) && !isStop){
+    LOG("Server: start reciving data on socket #" << newConnection);
+    while(recived < sizeof(SensorMessage) && !m_isStop){
         pollResult =  poll(&pfd, 1, timeout);
         if(pollResult != 1) 
             break;
         int bytesRead = recv(connection,
             &message+recived,
-            sizeof(MessageHeader) - recived,
+            sizeof(SensorMessage) - recived,
             0
         );
         if(bytesRead <= 0){
@@ -133,16 +149,16 @@ void Server::reciveData(SocketDescriptorType newConnection)
         recived += bytesRead;
     }
 
-    if(!isStop){
+    if(!m_isStop){
         if(pollResult != 1){
             std::string errorMassage;
             if(pollResult == 0){
                 errorMassage = "poll timeout";
-                LOG("Server poll timeout on socket #" << newConnection);
+                LOG("Server: poll timeout on socket #" << newConnection);
             }
             else{
                 errorMassage = "connection error ";
-                LOG("Server Connection error on socket #" << newConnection);
+                LOG("Server: Connection error on socket #" << newConnection);
             }
             onErrorCallback(errorMassage);
         }
@@ -152,8 +168,8 @@ void Server::reciveData(SocketDescriptorType newConnection)
         }
     }
     
-    std::lock_guard lock(mutexForMap);
-    connectionThreadsMap[connection].detach();
-    connectionThreadsMap.erase(connection);
-    condtion.notify_all();
+    std::lock_guard lock(m_mutexForMap);
+    m_connectionThreadsMap[connection].detach();
+    m_connectionThreadsMap.erase(connection);
+    m_condtion.notify_all();
 }

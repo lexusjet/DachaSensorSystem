@@ -9,7 +9,7 @@
 #include <string>
 #include <Logger.h>
 
-TestClient::TestClient(const std::string& ip, const int port, const MessageHeader& message)
+TestClient::TestClient(const std::string& ip, const int port, const SensorMessage& message)
     : m_messageHeader(message)
 {
     struct sockaddr_in addr;
@@ -20,7 +20,6 @@ TestClient::TestClient(const std::string& ip, const int port, const MessageHeade
         perror("socket");
         exit(1);
     }
-
 
     addr.sin_family = AF_INET;
     addr.sin_port = htons(port); // или любой другой порт...
@@ -46,7 +45,6 @@ void TestClient::sendMessage()
 {
     size_t total = 0;
     int n;
-    // LOG("sending: \n" << m_messageHeader << "\n");
 
     while(total < MESSEGE_SIZE)
     {
@@ -54,6 +52,4 @@ void TestClient::sendMessage()
         if(n == -1) { break; }
         total += n;
     }
-    
-    
 }

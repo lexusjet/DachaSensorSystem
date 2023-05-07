@@ -19,7 +19,7 @@
             Logger::startMessage() \
                 /* <<__PRETTY_FUNCTION__ \
                 << "(" << __LINE__<< "): " */\
-                << MESSAGE_CHAIN << std::endl;\   
+                << MESSAGE_CHAIN << std::endl; \
         }
 // #else
 //     #define LOG(MESSAGE_CHAIN)

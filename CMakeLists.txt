@@ -37,7 +37,7 @@ add_compile_options(
 include_directories(.)
 
 add_subdirectory(Socket_class)
-add_subdirectory(MessageHeader)
+add_subdirectory(SensorMessage)
 add_subdirectory(Server)
 add_subdirectory(TestClient)
 add_subdirectory(test)
@@ -46,5 +46,5 @@ add_executable(${PROJECT_NAME} main.cpp)
 
 target_link_libraries(${PROJECT_NAME} 
     PRIVATE ServerLib
-    PRIVATE MessageHeaderLib
+    PRIVATE SensorMessageLib
 )
