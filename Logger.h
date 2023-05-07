@@ -1,5 +1,5 @@
 
-#ifdef DEBUG
+// #ifdef DEBUG
     #include <mutex>
     #include <iostream>
 
@@ -16,8 +16,11 @@
     #define LOG(MESSAGE_CHAIN) \
         {\
             std::lock_guard coutlg(Logger::getMutex());\
-            Logger::startMessage() << MESSAGE_CHAIN << std::endl;\
+            Logger::startMessage() \
+                /* <<__PRETTY_FUNCTION__ \
+                << "(" << __LINE__<< "): " */\
+                << MESSAGE_CHAIN << std::endl;\   
         }
-#else
-    #define LOG(MESSAGE_CHAIN)
-#endif
+// #else
+//     #define LOG(MESSAGE_CHAIN)
+// #endif

@@ -63,6 +63,8 @@ class MessageHeader
         void setReserv(uint32_t reserv) {header.reserv = reserv;};
         uint32_t getReserve() const {return header.reserv;};
 
+        bool operator==(const MessageHeader& other) const;
+        bool operator!=(const MessageHeader& other) const;
     protected:
         union {
             char str[MESSEGE_SIZE];

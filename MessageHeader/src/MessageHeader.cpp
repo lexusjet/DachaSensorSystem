@@ -37,6 +37,22 @@ void MessageHeader::operator=(const MessageHeader& a)
     header.extension = a.header.extension;
     header.reserv = a.header.reserv;
 }
+bool MessageHeader::operator==(const MessageHeader& other) const
+{
+    return header.version == other.header.version
+            && header.local == other.header.local
+            && header.numberInLocalization == other.header.numberInLocalization
+            && header.dataType == other.header.dataType
+            && header.data == other.header.data
+            && header.extension == other.header.extension
+            && header.reserv == other.header.reserv;
+
+}
+
+bool MessageHeader::operator!=(const MessageHeader& other) const
+{
+    return !(*this == other);
+}
 
 std::ostream& operator<<(std::ostream& stream, MessageHeader messege){
     stream << "VERSION : " << static_cast<int>(messege.getVersion()) <<std::endl;

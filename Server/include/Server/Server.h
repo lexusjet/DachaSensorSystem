@@ -24,22 +24,25 @@ namespace dachaServer
     {
     public:
         enum State{
+            Constructing,
             Created,
-            Stopped,
-            StartListen,
             Started,
-
+            StartListen,
+            Stopped,
+            ListenStopped,
+            Destroyed,
         };
-        using DataReciveCallBack = std::function<void (MessageHeader)>;
-        using ErrorCallBack = std::function<void (std::string)>;
-        using ServerStateChangedCallback = std::function<void (State)>;
+        using ServerStateChangedCallback = std::function<void (const State)>;
+        using ErrorCallBack = std::function<void (const std::string&)>;
+        using DataReciveCallBack = std::function<void (const MessageHeader&)>;
     public:
         Server(
             int port,
             int backlog,
-            const DataReciveCallBack& onDataRecivedCallback,
+            const ServerStateChangedCallback& onServerStateChangedCallback,
             const ErrorCallBack& onErorrCallback,
-            const ServerStateChangedCallback& onServerStateChangedCallback);
+            const DataReciveCallBack& onDataRecivedCallback
+        );
         ~Server();
         Server() = delete;
         Server(const Server &) = delete;
@@ -50,6 +53,8 @@ namespace dachaServer
         void start();
         // закончить прием соединений
         void stop();
+        State state() const { return m_state;}
+
 
     private:
         void acceptLoop();
@@ -64,16 +69,18 @@ namespace dachaServer
         struct pollfd pollStruct;
     
     private:
-        // колбек после успешного приема данных
-        DataReciveCallBack onDataRecivedCallback;
-        // колбек если произошла какая-то ошибка
-        ErrorCallBack onErrorCallback;
         // колбек при изминении состояния сервера
         ServerStateChangedCallback onServerStateChangedCallback;
+        // колбек если произошла какая-то ошибка
+        ErrorCallBack onErrorCallback;
+        // колбек после успешного приема данных
+        DataReciveCallBack onDataRecivedCallback;
 
     private:
         // флаг для остановки 
         std::atomic<bool> isStop;
+        //
+        std::atomic<State> m_state;
         // поток приема соединений
         std::thread listenerThread;
         std::mutex mutexForMap;

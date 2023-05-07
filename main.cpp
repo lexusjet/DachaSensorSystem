@@ -53,9 +53,9 @@ int main(int argc, const char **argv)
 
 
     dachaServer::Server server(3425, 5,
-                            onDataRecivedCallback,
+                            onServerStateChangedCallback,
                             onErorrCallback,
-                            onServerStateChangedCallback
+                            onDataRecivedCallback
                         );
     
     

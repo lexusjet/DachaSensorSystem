@@ -1,10 +1,9 @@
 cmake_minimum_required(VERSION 3.0.0)
-project(DACHA_PROJECT CXX)
+project(Test CXX)
 
 set(CMAKE_CXX_FLAGS "")
 set(CMAKE_EXE_LINKER_FLAGS "")
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
 
 add_compile_options(
     
@@ -34,17 +33,12 @@ add_compile_options(
     -Wsign-promo
     -Wno-unknown-pragmas
 )
-include_directories(.)
-
-add_subdirectory(Socket_class)
-add_subdirectory(MessageHeader)
-add_subdirectory(Server)
-add_subdirectory(TestClient)
-add_subdirectory(test)
 
 add_executable(${PROJECT_NAME} main.cpp)
+
 
 target_link_libraries(${PROJECT_NAME} 
     PRIVATE ServerLib
     PRIVATE MessageHeaderLib
+    PRIVATE TestClientLib
 )
