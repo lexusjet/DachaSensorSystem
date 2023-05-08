@@ -1,10 +1,9 @@
 cmake_minimum_required(VERSION 3.0.0)
-project(DACHA_PROJECT CXX)
+project(MessageHandlerLib CXX)
 
 set(CMAKE_CXX_FLAGS "")
 set(CMAKE_EXE_LINKER_FLAGS "")
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
 
 add_compile_options(
     
@@ -34,19 +33,19 @@ add_compile_options(
     -Wsign-promo
     -Wno-unknown-pragmas
 )
-include_directories(.)
 
-add_subdirectory(Socket_class)
-add_subdirectory(SensorMessage)
-add_subdirectory(Server)
-add_subdirectory(TestClient)
-add_subdirectory(test)
-add_subdirectory(MessageHandler)
+find_package(Threads REQUIRED)
 
-add_executable(${PROJECT_NAME} main.cpp)
+add_library(MessageHandlerLib STATIC
+    src/MessageHandler.cpp 
+    include/MessageHandler/MessageHandler.h
+)
 
-target_link_libraries(${PROJECT_NAME} 
-    PRIVATE ServerLib
+target_link_libraries(MessageHandlerLib
+    PRIVATE Threads::Threads
     PRIVATE SensorMessageLib
-    PRIVATE MessageHandlerLib
+)
+
+target_include_directories(MessageHandlerLib
+    PUBLIC include
 )

@@ -1,5 +1,5 @@
 #include <Server/Server.h>
-#include <Logger.h>
+#include <Logger.h> 
 
 #include <iostream>
 
@@ -97,6 +97,10 @@ void DachaServer::Server::start()
         onErrorCallback("Server: can`t start work");
         return;
     }
+    
+    if(m_listenerThread.joinable())
+        m_listenerThread.join();
+
     m_isStop = false;
     m_listenerThread = std::thread(&Server::acceptLoop, this);
     LOG("Server started");
@@ -137,10 +141,12 @@ void Server::reciveData(SocketDescriptorType newConnection)
         pollResult =  poll(&pfd, 1, timeout);
         if(pollResult != 1) 
             break;
-        int bytesRead = recv(connection,
-            &message+recived,
-            sizeof(SensorMessage) - recived,
-            0
+
+        int bytesRead = recv(
+                            connection,
+                            &message+recived,
+                            sizeof(SensorMessage) - recived,
+                            0
         );
         if(bytesRead <= 0){
             pollResult = -1;
