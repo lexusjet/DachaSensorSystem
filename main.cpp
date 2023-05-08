@@ -9,6 +9,7 @@
 
 #include <Server/Server.h>
 #include <SensorMessage/SensorMessage.h>
+#include <MessageHandler/MessageHandler.h>
 
 #include "Logger.h"
 
@@ -28,8 +29,6 @@ int main(int argc, const char **argv)
 {
     if(signal(SIGINT, signalFunction) == SIG_ERR){ return 0;};
     
-    DachaServer::Server::DataReciveCallBack onDataRecivedCallback =
-        [](SensorMessage data){ };
     DachaServer::Server::ErrorCallBack onErorrCallback =
         [](std::string erorr){ std::cout << erorr << std::endl; };
     DachaServer::Server::ServerStateChangedCallback onServerStateChangedCallback =
@@ -50,7 +49,13 @@ int main(int argc, const char **argv)
             };
     
     
-
+    MessageHandler messageHendler;
+    messageHendler.start();
+    DachaServer::Server::DataReciveCallBack onDataRecivedCallback  =
+        [&messageHendler](const SensorMessage& message)
+        {
+            messageHendler.addMessage(message);
+        };
 
     DachaServer::Server server(3425, 5,
                             onServerStateChangedCallback,
@@ -63,6 +68,7 @@ int main(int argc, const char **argv)
     std::unique_lock<std::mutex> lock(mtx);
     cv.wait(lock, [](){return static_cast<bool>(isStop);});
     server.stop();
+    messageHendler.stop();
 
     return 0;
 }

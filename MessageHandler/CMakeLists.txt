@@ -37,13 +37,13 @@ add_compile_options(
 find_package(Threads REQUIRED)
 
 add_library(MessageHandlerLib STATIC
-    src/MessageHandler.cpp 
     include/MessageHandler/MessageHandler.h
+    src/MessageHandler.cpp 
 )
 
 target_link_libraries(MessageHandlerLib
-    PRIVATE Threads::Threads
     PRIVATE SensorMessageLib
+    PRIVATE Threads::Threads
 )
 
 target_include_directories(MessageHandlerLib

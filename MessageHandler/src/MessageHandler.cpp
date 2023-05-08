@@ -59,3 +59,13 @@ void MessageHandler::hendlerLoop()
 
     }
 }
+
+bool MessageHandler::validateMessage(const SensorMessage& message)
+{
+    // TODO: возможно стоит сделать файл настройки валидации
+    // типо txt файл который будет при старте загружаться 
+    // в ктором будут обознчены занчение 
+    // для того или иного параметра сообщения
+
+    return true;
+}

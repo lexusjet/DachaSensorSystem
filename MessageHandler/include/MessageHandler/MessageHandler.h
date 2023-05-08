@@ -2,11 +2,10 @@
 
 #include <thread>
 #include <mutex>
-#include <vector>
-#include <stack>
-#include <atomic>
-#include <functional>
 #include <condition_variable>
+#include <atomic>
+#include <stack>
+#include <functional>
 
 #include <SensorMessage/SensorMessage.h>
 // =============================================================================
