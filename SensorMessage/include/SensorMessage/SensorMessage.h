@@ -7,8 +7,8 @@
 //      size: 16 bytes
 //
 //      1) 1 byte: version
-//      2) 1 byte: localisation
-//      3) 1 byte: number in localisation
+//      2) 1 byte: location
+//      3) 1 byte: number in location
 //      4) 1 byte: data type
 //      5) 4 byte: data
 //      6) 4 byte: extension

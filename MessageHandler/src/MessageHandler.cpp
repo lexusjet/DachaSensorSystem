@@ -51,6 +51,8 @@ void MessageHandler::hendlerLoop()
         if(validateMessage(message))
         {
             //TODO action if message is valid
+            // для начала наверное парсинг 
+            // потом отправка в бд
         }
         else
         {
@@ -66,6 +68,8 @@ bool MessageHandler::validateMessage(const SensorMessage& message)
     // типо txt файл который будет при старте загружаться 
     // в ктором будут обознчены занчение 
     // для того или иного параметра сообщения
+
+
 
     return true;
 }
