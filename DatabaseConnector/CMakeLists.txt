@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.0)
-project(DatabaseInterface CXX)
+project(DatabaseConnector CXX)
 
 set(CMAKE_CXX_FLAGS "")
 set(CMAKE_EXE_LINKER_FLAGS "")
@@ -34,15 +34,15 @@ add_compile_options(
     -Wno-unknown-pragmas
 )
 
-add_library(DatabaseInterfaceLib STATIC
-    src/DatabaseInterface.cpp
-    include/DatabaseInterface/DatabaseInterface.h
+add_library(DatabaseConnectorLib STATIC
+    src/DatabaseConnector.cpp
+    include/DatabaseConnector/DatabaseConnector.h
 )
 
-target_link_libraries(DatabaseInterfaceLib 
+target_link_libraries(DatabaseConnectorLib 
     PRIVATE mysqlcppconn
 )
 
-target_include_directories(DatabaseInterfaceLib
+target_include_directories(DatabaseConnectorLib
     PUBLIC include
 )

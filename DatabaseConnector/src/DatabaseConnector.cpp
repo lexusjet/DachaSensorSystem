@@ -1,4 +1,4 @@
-#include <DatabaseInterface/DatabaseInterface.h>
+#include <DatabaseConnector/DatabaseConnector.h>
 
 #include <mysql_connection.h>
 #include <cppconn/driver.h>
