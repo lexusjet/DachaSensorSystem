@@ -7,7 +7,7 @@
 #include <thread>
 #include <mutex>
 
-class Database
+class DatabaseClient
 {
     using InsertedCallback = std::function<void (const std::string)>;
     using ErrorCallback = std::function<void (const std::string, const std::exception)>;
@@ -26,7 +26,7 @@ private:
     ErrorCallback onErrorCallback;
 
 public:
-    Database (
+    DatabaseClient (
         const std::string& addres,
         const std::string& port,
         const std::string& name,
@@ -35,8 +35,8 @@ public:
         const InsertedCallback& insertCallback,
         const ErrorCallback& errorCallback
     );
-    Database() = delete;
-    ~Database();
+    DatabaseClient() = delete;
+    ~DatabaseClient();
 
 public:
     void setDatabaseName(const std::string& name);

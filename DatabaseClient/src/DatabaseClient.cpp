@@ -1,8 +1,8 @@
-#include <Database/Database.h>
+#include <DatabaseClient/DatabaseClient.h>
 #include <boost/bind/bind.hpp>
 
 
-Database::Database(
+DatabaseClient::DatabaseClient(
         const std::string& addres,
         const std::string& port,
         const std::string& name,
@@ -19,24 +19,24 @@ Database::Database(
         onErrorCallback(errorCallback)
 {}
 
-Database::~Database()
+DatabaseClient::~DatabaseClient()
 {
     m_ioContext.run();
 }
 
-void Database::setDatabaseName(const std::string& name)
+void DatabaseClient::setDatabaseName(const std::string& name)
 {
     std::lock_guard<std::mutex> lock(m_fieldMutex);
     m_ioContext.run();
     m_databaseName = name;
 }
 
-void Database::execute(const std::string& query)
+void DatabaseClient::execute(const std::string& query)
 {   
     std::lock_guard<std::mutex> lock(m_fieldMutex);
     
     m_ioContext.post(boost::bind(
-            &Database::executeFunction,
+            &DatabaseClient::executeFunction,
             this,
             m_databaseName,
             query
@@ -50,21 +50,21 @@ void Database::execute(const std::string& query)
     workerThread.detach();
 }
 
-void Database::setErrorCallback(const ErrorCallback& callback)
+void DatabaseClient::setErrorCallback(const ErrorCallback& callback)
 {
     m_ioContext.run();
     std::lock_guard<std::mutex> lock(m_fieldMutex);
     onErrorCallback = callback;
 }
 
-void Database::setInsertedCallback(const InsertedCallback& callback)
+void DatabaseClient::setInsertedCallback(const InsertedCallback& callback)
 {
     m_ioContext.run();
     std::lock_guard<std::mutex> lock(m_fieldMutex);
     onInsertedCallback = callback;
 }
 
-void Database::executeFunction(
+void DatabaseClient::executeFunction(
     const std::string databaseName,
     const std::string query
 )
@@ -78,9 +78,9 @@ void Database::executeFunction(
     }
     catch(const std::exception& exception)
     {
-        onErrorCallback(message, exception);
+        onErrorCallback(query, exception);
         return;
     }
-    onInsertedCallback(message);
+    onInsertedCallback(query);
 }
 

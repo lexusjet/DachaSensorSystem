@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.0)
-project(Database CXX)
+project(DatabaseClient CXX)
 
 set(CMAKE_CXX_FLAGS "")
 set(CMAKE_EXE_LINKER_FLAGS "")
@@ -39,16 +39,16 @@ add_compile_options(
 find_package(Boost 1.74.0 REQUIRED system)
 # include_directories(${Boost_INCLUDE_DIRS})
 
-add_library(DatabaseLib STATIC
-    src/Database.cpp
-    include/Database/Database.h
+add_library(DatabaseClientLib STATIC
+    src/DatabaseClient.cpp
+    include/DatabaseClient/DatabaseClient.h
 )
 
-target_link_libraries(DatabaseLib 
+target_link_libraries(DatabaseClientLib 
     PUBLIC SensorMessageLib
     PUBLIC DatabaseConnectorLib
 )
 
-target_include_directories(DatabaseLib
+target_include_directories(DatabaseClientLib
     PUBLIC include
 )
