@@ -40,11 +40,14 @@ public:
     ~Database();
 
 public:
-    void setDatabaseName (const std::string& name);
+    void setDatabaseName(const std::string& name);
     void setErrorCallback(const ErrorCallback& callback);
     void setInsertedCallback(const InsertedCallback& callback);
-    void insert (const SensorMessage& , const QueryFromSensorMessage&);
+    void execute(const std::string&);
 
 private:
-    void insertFunction (const std::string databaseName, const SensorMessage message, const QueryFromSensorMessage);
+    void executeFunction(
+        const std::string databaseName,
+        const std::string query
+    );
 };

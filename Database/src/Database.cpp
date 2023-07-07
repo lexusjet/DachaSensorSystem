@@ -31,19 +31,15 @@ void Database::setDatabaseName(const std::string& name)
     m_databaseName = name;
 }
 
-void Database::insert(
-    const SensorMessage& message,
-    const QueryFromSensorMessage& queryFromSensorMessage
-)
+void Database::execute(const std::string& query)
 {   
     std::lock_guard<std::mutex> lock(m_fieldMutex);
     
     m_ioContext.post(boost::bind(
-            &Database::insertFunction,
+            &Database::executeFunction,
             this,
             m_databaseName,
-            message,
-            queryFromSensorMessage
+            query
         )
     );
 
@@ -68,19 +64,16 @@ void Database::setInsertedCallback(const InsertedCallback& callback)
     onInsertedCallback = callback;
 }
 
-void Database::insertFunction(
+void Database::executeFunction(
     const std::string databaseName,
-    const SensorMessage message,
-    const QueryFromSensorMessage queryFromSensorMessage
+    const std::string query
 )
 {
     DatabaseConnector connector(m_addres, m_port, m_name, m_password);
     try
     {
         connector.connect();
-        connector.execute("USE " + databaseName);
-        std::string query = "INSERT INTO " + queryFromSensorMessage(message);
-        
+        connector.execute("USE " + databaseName);        
         connector.execute(query);
     }
     catch(const std::exception& exception)
