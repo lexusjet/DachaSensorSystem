@@ -34,8 +34,6 @@ add_compile_options(
     -Wno-unknown-pragmas
 )
 
-find_package(Threads REQUIRED)
-
 add_library(MessageHandlerLib STATIC
     include/MessageHandler/MessageHandler.h
     src/MessageHandler.cpp 
@@ -43,7 +41,9 @@ add_library(MessageHandlerLib STATIC
 
 target_link_libraries(MessageHandlerLib
     PRIVATE SensorMessageLib
-    PRIVATE Threads::Threads
+    PRIVATE SensorMessageValidatorLib
+    PRIVATE SensorMessageConverterLib
+
 )
 
 target_include_directories(MessageHandlerLib

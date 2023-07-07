@@ -1,75 +1,125 @@
 #include <MessageHandler/MessageHandler.h>
+#include <ctime>
 
-MessageHandler::MessageHandler()
-    : m_isStop(true)
+// =============================================================================
+
+MessageHandler::MessageHandler(
+    const SensorMessageValidator& valid,
+    const SensorMessageConverter& convert,
+    const ErrorCallBack& errorCallback
+):
+    m_validator(valid),
+    m_converter(convert),
+    m_onErrorCallBack(errorCallback)
 {}
 
 MessageHandler::~MessageHandler()
 {
-    m_isStop = true;
-    if(m_handlerThread.joinable())
-        m_handlerThread.join();
 
 }
 
-void MessageHandler::start()
-{
-    if(m_handlerThread.joinable())
-        m_handlerThread.join();
-    m_isStop = false;
-    m_handlerThread = std::thread(&MessageHandler::hendlerLoop, this);
-}
 
-void MessageHandler::stop()
+void MessageHandler::handleMessage(const SensorMessage& message)
 {
-    m_isStop = true;
-}
-
-void MessageHandler::addMessage(const SensorMessage& message)
-{
-    if(m_isStop)
-    {   
-        m_onErrorCallBack(std::string("can`t add SensorMessage MessageHandler is stoped"));
-        return;
-    }
-    std::lock_guard lock(m_sensorMessageStackMutex);
-    m_sensorMessageStack.push(message);
-    m_condition.notify_all();
-}
-
-void MessageHandler::hendlerLoop()
-{
-    while(!m_isStop)
+    if(!validateSensorMessage(message))
     {
-
-        std::unique_lock lock(m_sensorMessageStackMutex);
-        m_condition.wait(lock, [&](){return m_sensorMessageStack.size();});
-        SensorMessage message = m_sensorMessageStack.top();
-        m_sensorMessageStack.pop();
-        lock.unlock();
-        
-        if(validateMessage(message))
-        {
-            //TODO action if message is valid
-            // для начала наверное парсинг 
-            // потом отправка в бд
-        }
-        else
-        {
-            m_onErrorCallBack("SensorMessage isn`t valid");
-        }
-
+        //error log
     }
+    
+    std::string query = convertSensorMessageToQuery(message);
+
+    if(query.size() == 0)
+    {
+        // error log
+    }
+    
 }
 
-bool MessageHandler::validateMessage(const SensorMessage& message)
+void MessageHandler::setErrorCallBack(const ErrorCallBack& errorCallback)
 {
-    // TODO: возможно стоит сделать файл настройки валидации
-    // типо txt файл который будет при старте загружаться 
-    // в ктором будут обознчены занчение 
-    // для того или иного параметра сообщения
-
-
-
-    return true;
+    m_onErrorCallBack = errorCallback;
 }
+
+bool MessageHandler::validateSensorMessage(const SensorMessage& message)
+{
+    return m_validator.validate(message);
+}
+
+std::string MessageHandler::convertSensorMessageToQuery(
+    const SensorMessage& message
+)
+{
+    
+    std::string table_name = "Temperature_in_locations";
+    std::string colomnNames = R"(
+        date, 
+        time, 
+        temperature_сelsius, 
+        locationId, 
+        placeId 
+        )";
+    // date time data location numberInLocation
+
+
+    time_t seconds = time(NULL);
+    tm* timeInfo = localtime(&seconds);
+
+    std::string date(
+        std::to_string(timeInfo->tm_mday) +
+        "-" +
+        std::to_string(timeInfo->tm_mon) +
+        "-" +
+        std::to_string(timeInfo->tm_year + 1900)
+    );
+
+    std::string time(
+        std::to_string(timeInfo->tm_hour) +
+        ":" +
+        std::to_string(timeInfo->tm_min)
+    );
+
+    std::string dataValue = std::to_string(
+        static_cast<int>(message.getData())
+    );
+
+    std::string locationValue = std::to_string(
+        static_cast<size_t>(message.getLocation())
+    );
+    std::string numberInLocationValue = std::to_string(
+        static_cast<size_t>(message.getNumberInLocation())
+    );
+    std::string values( 
+        "VALUES ( " +
+        date + " " +
+        time + " " +
+        dataValue + " " +
+        locationValue + " " +
+        numberInLocationValue + " " +
+        " )"
+    );
+
+    std::string anser(
+        "INSERT INTO " +
+        table_name + " " +
+        colomnNames + " " +
+        values
+    );
+
+    return anser;
+}
+void MessageHandler::setValidator(const SensorMessageValidator& b)
+{
+    m_validator = b;
+}
+
+void MessageHandler::setConverter(const SensorMessageConverter& b)
+{
+    m_converter = b;
+}
+
+// version
+// location
+// numberInLocation
+// dataType
+// extension
+// reserve
