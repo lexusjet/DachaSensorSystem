@@ -9,8 +9,10 @@
 
 #include <Server/Server.h>
 #include <SensorMessage/SensorMessage.h>
+#include <SensorMessageValidator/SensorMessageValidator.h>
+#include <SensorMessageConverter/SensorMessageConverter.h>
 #include <MessageHandler/MessageHandler.h>
-
+#include <SensorMessageValidator/SensorMessageValidator.h>
 #include "Logger.h"
 
 std::mutex mtx;
@@ -25,9 +27,61 @@ void signalFunction(int sig)
     cv.notify_all();
 }
 
+SensorMessageValidator createSensorMessageValidator()
+{
+    std::vector<size_t> m_verions = {1};
+    
+    std::vector<size_t> place_1 = {1, 2, 3};
+    std::vector<size_t> place_2 = {4, 5, 6, 7};
+    std::vector<size_t> place_3 = {8, 9, 10, 11};
+    std::vector<size_t> place_4 = {12, 13};
+    std::unordered_map<size_t, std::vector<size_t>> locaPlace;
+    locaPlace[1] = place_1;
+    locaPlace[2] = place_2;
+    locaPlace[3] = place_3;
+    locaPlace[4] = place_4;
+
+    std::vector<size_t> m_dataTypesVec = {1};
+    std::vector<int> m_extenionsVec = {0};
+    std::vector<int> m_reservesVec = {0};
+
+    return SensorMessageValidator(
+        m_verions,
+        locaPlace,
+        m_dataTypesVec,
+        m_extenionsVec,
+        m_reservesVec
+    );
+}
+
+SensorMessageConverter createSensorMessageConverter()
+{
+    return SensorMessageConverter(
+        std::unordered_map<size_t, std::string>(), 
+        std::unordered_map<size_t, std::string>(), 
+        std::unordered_map<size_t, std::string>() 
+    );
+}
+
 int main(int argc, const char **argv)
 {
+    
     if(signal(SIGINT, signalFunction) == SIG_ERR){ return 0;};
+    
+    
+    
+    SensorMessageValidator validator(createSensorMessageValidator());
+    SensorMessageConverter converter(createSensorMessageConverter());
+    
+    MessageHandler messageHandler(
+        validator,
+        converter, 
+        [](const SensorMessage, std::string)
+        {
+            std::cout << "MessageHandler error" << std::endl;
+        }
+    );
+    
     
     DachaServer::Server::ErrorCallBack onErorrCallback =
         [](std::string erorr){ std::cout << erorr << std::endl; };
@@ -49,12 +103,11 @@ int main(int argc, const char **argv)
             };
     
     
-    MessageHandler messageHendler;
-    messageHendler.start();
-    DachaServer::Server::DataReciveCallBack onDataRecivedCallback  =
-        [&messageHendler](const SensorMessage& message)
+
+    DachaServer::Server::DataReciveCallBack onDataRecivedCallback =
+        [&messageHandler](const SensorMessage& message)
         {
-            messageHendler.addMessage(message);
+            messageHandler.handleMessage(message);
         };
 
     DachaServer::Server server(3425, 5,
@@ -68,7 +121,6 @@ int main(int argc, const char **argv)
     std::unique_lock<std::mutex> lock(mtx);
     cv.wait(lock, [](){return static_cast<bool>(isStop);});
     server.stop();
-    messageHendler.stop();
 
     return 0;
 }
