@@ -42,6 +42,8 @@ add_subdirectory(Server)
 add_subdirectory(TestClient)
 add_subdirectory(test)
 add_subdirectory(MessageHandler)
+add_subdirectory(SensorMessageValidator)
+add_subdirectory(SensorMessageConverter)
 
 add_executable(${PROJECT_NAME} main.cpp)
 
@@ -49,4 +51,6 @@ target_link_libraries(${PROJECT_NAME}
     PRIVATE ServerLib
     PRIVATE SensorMessageLib
     PRIVATE MessageHandlerLib
+    PRIVATE SensorMessageValidatorLib
+    PRIVATE SensorMessageConverterLib
 )
