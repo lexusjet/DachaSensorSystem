@@ -9,9 +9,8 @@
 
 class Database
 {
-    using InsertedCallback = std::function<void (const SensorMessage)>;
-    using ErrorCallback = std::function<void (const SensorMessage, const std::exception)>;
-    using QueryFromSensorMessage = std::function<std::string (const SensorMessage&)>;
+    using InsertedCallback = std::function<void (const std::string)>;
+    using ErrorCallback = std::function<void (const std::string, const std::exception)>;
 private:
     std::string m_addres;
     std::string m_port;
