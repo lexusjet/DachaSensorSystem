@@ -10,7 +10,7 @@
 
 class MessageHandler
 {
-    using ErrorCallBack = std::function<void (const SensorMessage, std::string&)>;
+    using ErrorCallBack = std::function<void (SensorMessage, std::string)>;
     using EndCallBack = std::function<void (const SensorMessage&)>;
     // возможно нужен колбек на действие если все прошло хорошо
 
@@ -29,7 +29,7 @@ public:
     ~MessageHandler();
 
 public:
-    void handleMessage(const SensorMessage&);
+    void handleMessage(SensorMessage);
     void setValidator(const SensorMessageValidator&);
     void setConverter(const SensorMessageConverter&);
     void setErrorCallBack(const ErrorCallBack&);

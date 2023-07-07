@@ -19,10 +19,12 @@ MessageHandler::~MessageHandler()
 }
 
 
-void MessageHandler::handleMessage(const SensorMessage& message)
+void MessageHandler::handleMessage(SensorMessage message)
 {
     if(!validateSensorMessage(message))
     {
+        m_onErrorCallBack(message, std::string("error"));
+        return;
         //error log
     }
     
@@ -30,6 +32,8 @@ void MessageHandler::handleMessage(const SensorMessage& message)
 
     if(query.size() == 0)
     {
+        m_onErrorCallBack(message, std::string("error"));
+        return;
         // error log
     }
     
