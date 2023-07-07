@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.0)
-project(SensorMessageValidatorLIb CXX)
+project(SensorMessageConverterLib CXX)
 
 set(CMAKE_CXX_FLAGS "")
 set(CMAKE_EXE_LINKER_FLAGS "")
@@ -34,15 +34,15 @@ add_compile_options(
     -Wno-unknown-pragmas
 )
 
-add_library(SensorMessageValidatorLIb STATIC
-    include/SensorMessageValidator/SensorMessageValidator.h
-    src/SensorMessageValidator.cpp 
+add_library(SensorMessageConverterLib STATIC
+    include/SensorMessageConverter/SensorMessageConverter.h
+    src/SensorMessageConverter.cpp 
 )
 
-target_link_libraries(SensorMessageValidatorLIb
+target_link_libraries(SensorMessageConverterLib
     PRIVATE SensorMessageLib
 )
 
-target_include_directories(SensorMessageValidatorLIb
+target_include_directories(SensorMessageConverterLib
     PUBLIC include
 )
