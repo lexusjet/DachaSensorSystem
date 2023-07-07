@@ -44,6 +44,8 @@ add_subdirectory(test)
 add_subdirectory(MessageHandler)
 add_subdirectory(SensorMessageValidator)
 add_subdirectory(SensorMessageConverter)
+add_subdirectory(DatabaseConnector)
+add_subdirectory(DatabaseClient)
 
 add_executable(${PROJECT_NAME} main.cpp)
 
@@ -53,4 +55,6 @@ target_link_libraries(${PROJECT_NAME}
     PRIVATE MessageHandlerLib
     PRIVATE SensorMessageValidatorLib
     PRIVATE SensorMessageConverterLib
+    PRIVATE DatabaseConnectorLib
+    PRIVATE DatabaseClientLib
 )
