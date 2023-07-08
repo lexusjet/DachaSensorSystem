@@ -38,19 +38,20 @@ include_directories(.)
 
 add_subdirectory(Socket_class)
 add_subdirectory(SensorMessage)
-add_subdirectory(Server)
-add_subdirectory(TestClient)
-add_subdirectory(test)
 add_subdirectory(DatabaseConnector)
 add_subdirectory(ServerListener)
+
+add_subdirectory(Server)
 add_subdirectory(DatabaseClient)
+add_subdirectory(TestClient)
+add_subdirectory(test)
 
 add_executable(${PROJECT_NAME} main.cpp)
 
 target_link_libraries(${PROJECT_NAME} 
-    PRIVATE ServerLib
     PRIVATE SensorMessageLib
     PRIVATE DatabaseConnectorLib
     PRIVATE ServerListenerLib
     PRIVATE DatabaseClientLib
+    PRIVATE ServerLib
 )
