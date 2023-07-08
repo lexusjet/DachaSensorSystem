@@ -10,7 +10,7 @@
 class DatabaseClient
 {
     using InsertedCallback = std::function<void (const std::string)>;
-    using ErrorCallback = std::function<void (const std::string, const std::exception)>;
+    using ErrorCallback = std::function<void (const std::string, DataBaseException)>;
 private:
     std::string m_addres;
     std::string m_port;
@@ -18,12 +18,14 @@ private:
     std::string m_password;
     std::string m_databaseName;
     
-    std::mutex m_fieldMutex;
-
-    boost::asio::io_context m_ioContext;
-    
     InsertedCallback onInsertedCallback;
     ErrorCallback onErrorCallback;
+
+    std::mutex m_fieldMutex;
+    boost::asio::io_service m_ioService;
+    std::shared_ptr<boost::asio::io_service::work> m_workLock;
+    std::thread m_thread;
+
 
 public:
     DatabaseClient (
@@ -40,11 +42,10 @@ public:
 
 public:
     void setDatabaseName(const std::string& name);
-    void setErrorCallback(const ErrorCallback& callback);
-    void setInsertedCallback(const InsertedCallback& callback);
     void execute(const std::string&);
 
 private:
+    std::string getQueryFromSensorMessage(const SensorMessage&);
     void executeFunction(
         const std::string databaseName,
         const std::string query
