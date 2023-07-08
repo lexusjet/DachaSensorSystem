@@ -6,5 +6,5 @@ class ServerListener
     
 public:
     virtual void notify(const SensorMessage&) = 0;
-    virtual ~ServerListener();
+    virtual ~ServerListener() = default;
 };
