@@ -44,6 +44,7 @@ add_library(ServerLib STATIC
 target_link_libraries(ServerLib
     PUBLIC SocketWraperLib
     PUBLIC SensorMessageLib
+    PUBLIC ServerListenerLib
     PRIVATE Threads::Threads
 )
 
