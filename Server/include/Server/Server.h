@@ -13,6 +13,7 @@
 #include <atomic>
 #include <Socket_class/socket_class.h>
 #include <SensorMessage/SensorMessage.h>
+#include <ServerListener/ServerListener.h>
 
 
 
@@ -59,13 +60,17 @@ namespace DachaServer
         // возращает количество обрабатываемых соединений
         size_t numberOfConnections();
 
+    public:
+        void addListner(ServerListener*);
+        void eraseListner(ServerListener*);
 
     private:
         void acceptLoop();
         void reciveData(SocketDescriptorType sock);
 
-        // void onReadDone(std::string);
-        // void onReadError(std::string);
+    private:
+        std::mutex m_listenersVecMutex;
+        std::vector<ServerListener*> m_listenersVec;
 
     private:
         socket_wrapper::Socket m_listeningSocket;

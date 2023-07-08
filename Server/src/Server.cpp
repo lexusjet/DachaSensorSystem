@@ -1,9 +1,9 @@
 #include <Server/Server.h>
 #include <Logger.h> 
-
 #include <iostream>
 
 using namespace DachaServer;
+// ==============================================================================
 
 Server::Server(
     const int port,
@@ -59,6 +59,47 @@ Server::~Server(){
     LOG("Server successfully destroyed");
 }
 
+void DachaServer::Server::start()
+{
+    if(m_state != Created && m_state != ListenStopped){
+        onErrorCallback("Server: can`t start work");
+        return;
+    }
+    
+    if(m_listenerThread.joinable())
+        m_listenerThread.join();
+
+    m_isStop = false;
+    m_listenerThread = std::thread(&Server::acceptLoop, this);
+    LOG("Server started");
+}
+
+void DachaServer::Server::stop()
+{
+    m_isStop = true;
+    if(m_state == FailedToConstruct){
+        onErrorCallback("Server: nothing to stop");
+    }
+    m_state = Stopped;
+    onServerStateChangedCallback(Stopped);
+    LOG("Server: stoped");
+}
+
+void Server::addListner(ServerListener* listener)
+{
+    std::lock_guard lock(m_listenersVecMutex);
+    m_listenersVec.emplace_back(listener);
+}
+
+void Server::eraseListner(ServerListener* listener)
+{
+    std::lock_guard lock(m_listenersVecMutex);
+    auto itr = std::find(m_listenersVec.begin(), m_listenersVec.end(), listener);
+    if(itr == m_listenersVec.end())
+        return;
+    m_listenersVec.erase(itr);
+}
+
 void Server::acceptLoop()
 {
     LOG("Server start accepting connections on socket #" << static_cast<int>(m_listeningSocket));
@@ -91,31 +132,7 @@ void Server::acceptLoop()
     LOG("Server stop accepting connections");
 }
 
-void DachaServer::Server::start()
-{
-    if(m_state != Created && m_state != ListenStopped){
-        onErrorCallback("Server: can`t start work");
-        return;
-    }
-    
-    if(m_listenerThread.joinable())
-        m_listenerThread.join();
 
-    m_isStop = false;
-    m_listenerThread = std::thread(&Server::acceptLoop, this);
-    LOG("Server started");
-}
-
-void DachaServer::Server::stop()
-{
-    m_isStop = true;
-    if(m_state == FailedToConstruct){
-        onErrorCallback("Server: nothing to stop");
-    }
-    m_state = Stopped;
-    onServerStateChangedCallback(Stopped);
-    LOG("Server: stoped");
-}
 
 size_t DachaServer::Server::numberOfConnections() 
 {
@@ -171,6 +188,13 @@ void Server::reciveData(SocketDescriptorType newConnection)
         else{
             LOG("data successfully read from the socket #" << newConnection);
             onDataRecivedCallback(message);
+            std::lock_guard lockListnersVec(m_listenersVecMutex);
+            for(ServerListener* i : m_listenersVec)
+            {
+                if(i == nullptr)
+                    break;
+                i->notify(message);
+            }
         }
     }
     
