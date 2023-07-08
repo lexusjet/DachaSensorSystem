@@ -2,12 +2,13 @@
 
 #include <SensorMessage/SensorMessage.h>
 #include <DatabaseConnector/DatabaseConnector.h>
+#include <ServerListener/ServerListener.h>
 #include <memory>
 #include <boost/asio.hpp>
 #include <thread>
 #include <mutex>
 
-class DatabaseClient
+class DatabaseClient : public ServerListener
 {
     using InsertedCallback = std::function<void (const std::string)>;
     using ErrorCallback = std::function<void (const std::string, DataBaseException)>;
@@ -38,7 +39,9 @@ public:
         const ErrorCallback& errorCallback
     );
     DatabaseClient() = delete;
-    ~DatabaseClient();
+    virtual ~DatabaseClient();
+
+    virtual void notify(const SensorMessage&) override;
 
 public:
     void setDatabaseName(const std::string& name);
