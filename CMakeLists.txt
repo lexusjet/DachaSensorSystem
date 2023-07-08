@@ -42,6 +42,7 @@ add_subdirectory(Server)
 add_subdirectory(TestClient)
 add_subdirectory(test)
 add_subdirectory(DatabaseConnector)
+add_subdirectory(ServerListener)
 add_subdirectory(DatabaseClient)
 
 add_executable(${PROJECT_NAME} main.cpp)
@@ -50,5 +51,6 @@ target_link_libraries(${PROJECT_NAME}
     PRIVATE ServerLib
     PRIVATE SensorMessageLib
     PRIVATE DatabaseConnectorLib
+    PRIVATE ServerListenerLib
     PRIVATE DatabaseClientLib
 )
