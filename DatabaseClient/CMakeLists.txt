@@ -37,7 +37,6 @@ add_compile_options(
 )
 
 find_package(Boost 1.74.0 REQUIRED system)
-# include_directories(${Boost_INCLUDE_DIRS})
 
 add_library(DatabaseClientLib STATIC
     src/DatabaseClient.cpp
@@ -47,6 +46,7 @@ add_library(DatabaseClientLib STATIC
 target_link_libraries(DatabaseClientLib 
     PUBLIC SensorMessageLib
     PUBLIC DatabaseConnectorLib
+    PRIVATE ServerListenerLib
 )
 
 target_include_directories(DatabaseClientLib

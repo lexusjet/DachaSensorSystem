@@ -29,6 +29,11 @@ DatabaseClient::~DatabaseClient()
     m_thread.join();
 }
 
+void DatabaseClient::notify(const SensorMessage& message)
+{
+    execute(getQueryFromSensorMessage(message));
+}
+
 void DatabaseClient::setDatabaseName(const std::string& name)
 {
     std::lock_guard<std::mutex> lock(m_fieldMutex);
@@ -37,7 +42,6 @@ void DatabaseClient::setDatabaseName(const std::string& name)
 
 void DatabaseClient::execute(const std::string& query)
 {   
-    std::cout << "execute start" << std::endl;
     std::lock_guard<std::mutex> lock(m_fieldMutex);
     m_ioService.post(
         boost::bind(
@@ -47,7 +51,6 @@ void DatabaseClient::execute(const std::string& query)
             query
         )
     );
-    std::cout << "execute end" << std::endl;
 }
 std::string DatabaseClient::getQueryFromSensorMessage(const SensorMessage& message)
 {
@@ -61,7 +64,7 @@ std::string DatabaseClient::getQueryFromSensorMessage(const SensorMessage& messa
         locationId, 
         placeId 
         )";
-    date time data location numberInLocation
+    //date time data location numberInLocation
 
 
     time_t seconds = time(NULL);
@@ -111,7 +114,7 @@ std::string DatabaseClient::getQueryFromSensorMessage(const SensorMessage& messa
         colomnNames + " " +
         values
     );
-    return ;
+    return anser;
 }
 
 void DatabaseClient::executeFunction(
@@ -119,7 +122,6 @@ void DatabaseClient::executeFunction(
     const std::string query
 )
 {
-    std::cout << "executeFunction start" << std::endl;
     DatabaseConnector connector(m_addres, m_port, m_name, m_password);
     try
     {
@@ -133,6 +135,5 @@ void DatabaseClient::executeFunction(
         return;
     }
     onInsertedCallback(query);
-    std::cout << "executeFunction end" << std::endl;
 }
 
