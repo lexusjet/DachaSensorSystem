@@ -83,7 +83,7 @@ bool SensorMessageValidator::validate(const SensorMessage& a)
     auto reserveItr = std::find(
         m_reservesVec.begin(),
         m_reservesVec.end(),
-        a.getExtension()
+        a.getReserve()
     );
     if(reserveItr == m_reservesVec.end())
         return false;
