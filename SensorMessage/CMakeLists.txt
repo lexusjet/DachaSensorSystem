@@ -34,6 +34,16 @@ add_compile_options(
     -Wno-unknown-pragmas
 )
 
+add_library(SensorMessageLib STATIC
+    src/SensorMessage.cpp
+    include/SensorMessage/SensorMessage.h
+)
+
+target_include_directories(SensorMessageLib
+    PUBLIC include
+)
+
+
 add_library(SensorMessageValidatorLib STATIC
     src/SensorMessageValidator.cpp
     include/SensorMessageValidator/SensorMessageValidator.h
@@ -45,12 +55,16 @@ target_include_directories(SensorMessageValidatorLib
     PUBLIC include
 )
 
-
-add_library(SensorMessageLib STATIC
-    src/SensorMessage.cpp
-    include/SensorMessage/SensorMessage.h
+add_library(SensorMessageConverterLib STATIC
+    include/SensorMessageConverter/SensorMessageConverter.h
+    src/SensorMessageConverter.cpp 
 )
 
-target_include_directories(SensorMessageLib
+target_link_libraries(SensorMessageConverterLib
+    PUBLIC SensorMessageLib
+)
+
+target_include_directories(SensorMessageConverterLib
     PUBLIC include
 )
+
