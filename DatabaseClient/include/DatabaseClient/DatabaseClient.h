@@ -39,7 +39,7 @@ public:
         const ErrorCallback& errorCallback
     );
     DatabaseClient() = delete;
-    virtual ~DatabaseClient();
+    virtual ~DatabaseClient() override;
 
     virtual void notify(const SensorMessage&) override;
 
