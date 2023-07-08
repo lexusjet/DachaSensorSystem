@@ -49,9 +49,69 @@ void DatabaseClient::execute(const std::string& query)
     );
     std::cout << "execute end" << std::endl;
 }
-std::string DatabaseClient::getQueryFromSensorMessage(const SensorMessage&)
+std::string DatabaseClient::getQueryFromSensorMessage(const SensorMessage& message)
 {
-    return "";
+
+    // мне нужно получить тут имя нужной табицы и имена полей
+    std::string table_name = "Temperature_in_locations";
+    std::string colomnNames = R"(
+        date, 
+        time, 
+        temperature_сelsius, 
+        locationId, 
+        placeId 
+        )";
+    date time data location numberInLocation
+
+
+    time_t seconds = time(NULL);
+    tm* timeInfo = localtime(&seconds);
+    
+    std::string date(
+        std::to_string(timeInfo->tm_year + 1900) +
+        "-" +
+        std::to_string(timeInfo->tm_mon) +
+        "-" +
+        std::to_string(timeInfo->tm_mday)
+    );
+
+    std::string time(
+        std::to_string(timeInfo->tm_hour) +
+        ":" +
+        std::to_string(timeInfo->tm_min) +
+        ":" +
+        std::to_string(timeInfo->tm_sec)
+    );
+
+    std::string dataValue = std::to_string(
+        static_cast<int>(message.getData())
+    );
+
+    std::string locationValue = std::to_string(
+        static_cast<size_t>(message.getLocation())
+    );
+
+    std::string numberInLocationValue = std::to_string(
+        static_cast<size_t>(message.getNumberInLocation())
+    );
+
+    //   "INSERT INTO table (colomn_name1, ... , colomn_nameN) VALUES( colomn_value, ... , colomn_valueN)"
+    std::string values( 
+        "VALUES ( " +
+        date + " " +
+        time + " " +
+        dataValue + " " +
+        locationValue + " " +
+        numberInLocationValue + " " +
+        " )"
+    );
+    std::string anser(
+        "INSERT INTO " +
+        table_name + " " +
+        colomnNames + " " +
+        values
+    );
+    return ;
 }
 
 void DatabaseClient::executeFunction(
