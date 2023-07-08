@@ -1,6 +1,8 @@
 #include <DatabaseClient/DatabaseClient.h>
 #include <boost/bind/bind.hpp>
-
+#include <boost/make_shared.hpp>
+#include <memory>
+#include <iostream>
 
 DatabaseClient::DatabaseClient(
         const std::string& addres,
@@ -16,52 +18,40 @@ DatabaseClient::DatabaseClient(
         m_password(password),
         m_databaseName(databaseName),
         onInsertedCallback(insertCallback),
-        onErrorCallback(errorCallback)
+        onErrorCallback(errorCallback),
+        m_workLock(std::make_shared<boost::asio::io_service::work>(m_ioService)),
+        m_thread(boost::bind(&boost::asio::io_service::run, &m_ioService))
 {}
 
 DatabaseClient::~DatabaseClient()
 {
-    m_ioContext.run();
+    m_workLock.reset();
+    m_thread.join();
 }
 
 void DatabaseClient::setDatabaseName(const std::string& name)
 {
     std::lock_guard<std::mutex> lock(m_fieldMutex);
-    m_ioContext.run();
     m_databaseName = name;
 }
 
 void DatabaseClient::execute(const std::string& query)
 {   
+    std::cout << "execute start" << std::endl;
     std::lock_guard<std::mutex> lock(m_fieldMutex);
-    
-    m_ioContext.post(boost::bind(
+    m_ioService.post(
+        boost::bind(
             &DatabaseClient::executeFunction,
             this,
             m_databaseName,
             query
         )
     );
-
-    std::thread workerThread(
-        [](boost::asio::io_context& io){io.run();},
-        std::ref(m_ioContext)
-    );
-    workerThread.detach();
+    std::cout << "execute end" << std::endl;
 }
-
-void DatabaseClient::setErrorCallback(const ErrorCallback& callback)
+std::string DatabaseClient::getQueryFromSensorMessage(const SensorMessage&)
 {
-    m_ioContext.run();
-    std::lock_guard<std::mutex> lock(m_fieldMutex);
-    onErrorCallback = callback;
-}
-
-void DatabaseClient::setInsertedCallback(const InsertedCallback& callback)
-{
-    m_ioContext.run();
-    std::lock_guard<std::mutex> lock(m_fieldMutex);
-    onInsertedCallback = callback;
+    return "";
 }
 
 void DatabaseClient::executeFunction(
@@ -69,6 +59,7 @@ void DatabaseClient::executeFunction(
     const std::string query
 )
 {
+    std::cout << "executeFunction start" << std::endl;
     DatabaseConnector connector(m_addres, m_port, m_name, m_password);
     try
     {
@@ -76,11 +67,12 @@ void DatabaseClient::executeFunction(
         connector.execute("USE " + databaseName);        
         connector.execute(query);
     }
-    catch(const std::exception& exception)
+    catch(const DataBaseException& exception)
     {
         onErrorCallback(query, exception);
         return;
     }
     onInsertedCallback(query);
+    std::cout << "executeFunction end" << std::endl;
 }
 
