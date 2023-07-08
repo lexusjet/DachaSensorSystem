@@ -34,6 +34,18 @@ add_compile_options(
     -Wno-unknown-pragmas
 )
 
+add_library(SensorMessageValidatorLib STATIC
+    src/SensorMessageValidator.cpp
+    include/SensorMessageValidator/SensorMessageValidator.h
+)
+target_link_libraries(SensorMessageValidatorLib
+    PUBLIC SensorMessageLib
+)
+target_include_directories(SensorMessageValidatorLib
+    PUBLIC include
+)
+
+
 add_library(SensorMessageLib STATIC
     src/SensorMessage.cpp
     include/SensorMessage/SensorMessage.h
