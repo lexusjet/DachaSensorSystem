@@ -13,6 +13,8 @@
 #include <SensorMessageConverter/SensorMessageConverter.h>
 #include <MessageHandler/MessageHandler.h>
 #include <SensorMessageValidator/SensorMessageValidator.h>
+#include <DatabaseClient/DatabaseClient.h>
+#include <DatabaseConnector/DatabaseConnector.h>
 #include "Logger.h"
 
 std::mutex mtx;
@@ -76,13 +78,29 @@ int main(int argc, const char **argv)
     MessageHandler messageHandler(
         validator,
         converter, 
-        [](const SensorMessage, std::string)
+        [](const SensorMessage, std::string a)
         {
-            std::cout << "MessageHandler error" << std::endl;
+            std::cout << a << std::endl;
         }
     );
-    
-    
+
+    std::string addres = "127.0.0.1";
+    std::string port = "3306";
+    std::string dataBaseName = "test_dacha";
+    std::string userName = "root";
+    std::string password = "";
+    DatabaseClient dataBaseClient(
+        addres,
+        port,
+        userName,
+        password,
+        dataBaseName,
+        [](const std::string ){std::cout << "insereted" << std::endl;},
+        [](const std::string a, DataBaseException e){ std::cout<< "controled " << e.what() << std::endl;}
+    );
+
+    messageHandler.setDatabaseClient(&dataBaseClient);
+
     DachaServer::Server::ErrorCallBack onErorrCallback =
         [](std::string erorr){ std::cout << erorr << std::endl; };
     DachaServer::Server::ServerStateChangedCallback onServerStateChangedCallback =
