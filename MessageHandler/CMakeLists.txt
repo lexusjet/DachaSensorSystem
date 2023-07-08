@@ -41,9 +41,6 @@ add_library(MessageHandlerLib STATIC
 
 target_link_libraries(MessageHandlerLib
     PRIVATE SensorMessageLib
-    PRIVATE SensorMessageValidatorLib
-    PRIVATE SensorMessageConverterLib
-
 )
 
 target_include_directories(MessageHandlerLib
