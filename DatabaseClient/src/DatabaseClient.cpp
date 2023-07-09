@@ -57,33 +57,32 @@ std::string DatabaseClient::getQueryFromSensorMessage(const SensorMessage& messa
 
     // мне нужно получить тут имя нужной табицы и имена полей
     std::string table_name = "Temperature_in_locations";
-    std::string colomnNames = R"(
-        date, 
-        time, 
-        temperature_сelsius, 
-        locationId, 
-        placeId 
-        )";
-    //date time data location numberInLocation
+    std::string colomnNames(
+        "( date, time, temperature_сelsius, locationId, placeId )"
+        );
 
 
     time_t seconds = time(NULL);
     tm* timeInfo = localtime(&seconds);
     
-    std::string date(
+    std::string date( 
+        "\'" +
         std::to_string(timeInfo->tm_year + 1900) +
         "-" +
         std::to_string(timeInfo->tm_mon) +
         "-" +
-        std::to_string(timeInfo->tm_mday)
+        std::to_string(timeInfo->tm_mday) +
+        "\'"
     );
 
     std::string time(
+        "\'" +
         std::to_string(timeInfo->tm_hour) +
         ":" +
         std::to_string(timeInfo->tm_min) +
         ":" +
-        std::to_string(timeInfo->tm_sec)
+        std::to_string(timeInfo->tm_sec) +
+        "\'"
     );
 
     std::string dataValue = std::to_string(
@@ -101,10 +100,10 @@ std::string DatabaseClient::getQueryFromSensorMessage(const SensorMessage& messa
     //   "INSERT INTO table (colomn_name1, ... , colomn_nameN) VALUES( colomn_value, ... , colomn_valueN)"
     std::string values( 
         "VALUES ( " +
-        date + " " +
-        time + " " +
-        dataValue + " " +
-        locationValue + " " +
+        date + ", " +
+        time + ", " +
+        dataValue + ", " +
+        locationValue + ", " +
         numberInLocationValue + " " +
         " )"
     );
