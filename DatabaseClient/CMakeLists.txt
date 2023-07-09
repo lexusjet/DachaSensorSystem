@@ -43,6 +43,8 @@ add_library(DatabaseClientLib STATIC
     include/DatabaseClient/DatabaseClient.h
 )
 
+add_subdirectory(lib/DatabaseConnector)
+
 target_link_libraries(DatabaseClientLib 
     PUBLIC SensorMessageLib
     PUBLIC DatabaseConnectorLib
