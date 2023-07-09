@@ -91,7 +91,7 @@ void Server::addListner(ServerListener* listener)
     m_listenersVec.emplace_back(listener);
 }
 
-void Server::eraseListner(ServerListener* listener)
+void Server::removeListner(ServerListener* listener)
 {
     std::lock_guard lock(m_listenersVecMutex);
     auto itr = std::find(m_listenersVec.begin(), m_listenersVec.end(), listener);

@@ -33,6 +33,17 @@ namespace DachaServer
             ListenStopped,
             Destroyed,
         };
+
+        // TODO : энум ошибок 
+        // изменить колбек на ошибки чтоб возращал код ошибки
+        // сделать прослушку не локальной
+        // 
+        enum ErrorCode{
+            BindError,
+            StartListenError,
+            StartError,
+            StopError,
+        };
         using ServerStateChangedCallback = std::function<void (const State)>;
         using ErrorCallBack = std::function<void (const std::string&)>;
         using DataReciveCallBack = std::function<void (const SensorMessage&)>;
@@ -62,7 +73,7 @@ namespace DachaServer
 
     public:
         void addListner(ServerListener*);
-        void eraseListner(ServerListener*);
+        void removeListner(ServerListener*);
 
     private:
         void acceptLoop();
