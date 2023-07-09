@@ -82,7 +82,8 @@ int main(int argc, const char **argv)
                             onDataRecivedCallback
                         );
     
-    
+    server.addListner(&dataBaseClient);
+
     server.start();
     std::unique_lock<std::mutex> lock(mtx);
     cv.wait(lock, [](){return static_cast<bool>(isStop);});
