@@ -36,10 +36,14 @@ add_compile_options(
 
 find_package(Threads REQUIRED)
 
+
 add_library(ServerLib STATIC
     src/Server.cpp 
     include/Server/Server.h
 )
+
+add_subdirectory(lib/Socket_class)
+
 
 target_link_libraries(ServerLib
     PUBLIC SocketWraperLib
