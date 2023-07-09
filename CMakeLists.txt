@@ -38,11 +38,8 @@ include_directories(.)
 
 add_subdirectory(SensorMessage)
 add_subdirectory(ServerListener)
-
 add_subdirectory(Server)
 add_subdirectory(DatabaseClient)
-add_subdirectory(TestClient)
-add_subdirectory(test)
 
 add_executable(${PROJECT_NAME} main.cpp)
 
