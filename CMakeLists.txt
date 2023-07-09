@@ -36,9 +36,7 @@ add_compile_options(
 )
 include_directories(.)
 
-add_subdirectory(Socket_class)
 add_subdirectory(SensorMessage)
-add_subdirectory(DatabaseConnector)
 add_subdirectory(ServerListener)
 
 add_subdirectory(Server)
