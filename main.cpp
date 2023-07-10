@@ -7,6 +7,7 @@
 #include <mutex>
 #include <atomic>
 
+#include <ConfigLoader/ConfigLoader.h>
 #include <Server/Server.h>
 #include <SensorMessage/SensorMessage.h>
 #include <DatabaseClient/DatabaseClient.h>
@@ -32,18 +33,14 @@ int main(int argc, const char **argv)
     
     if(signal(SIGINT, signalFunction) == SIG_ERR){ return 0;};
     
+    ConfigLoader config("/home/lexusjet/Downloads/Dacha_project/config.json");
 
-    std::string addres = "127.0.0.1";
-    std::string port = "3306";
-    std::string dataBaseName = "test_dacha";
-    std::string userName = "root";
-    std::string password = "";
     DatabaseClient dataBaseClient(
-        addres,
-        port,
-        userName,
-        password,
-        dataBaseName,
+        config.getDatabaseIp(),
+        config.getDatabasePort(),
+        config.getDatabaseUserName(),
+        config.getDatabasePassword(),
+        config.getDatabaseName(),
         [](const std::string ){std::cout << "insereted" << std::endl;},
         [](const std::string a, DataBaseException e){ std::cout<< "controled " << e.what() << std::endl;}
     );
@@ -67,8 +64,6 @@ int main(int argc, const char **argv)
                         break;
                 }            
             };
-    
-    
 
     DachaServer::Server::DataReciveCallBack onDataRecivedCallback =
         [](const SensorMessage& message)
@@ -76,11 +71,13 @@ int main(int argc, const char **argv)
             
         };
 
-    DachaServer::Server server(3425, 5,
-                            onServerStateChangedCallback,
-                            onErorrCallback,
-                            onDataRecivedCallback
-                        );
+    DachaServer::Server server(
+            std::atoi(config.getServerPort().data()),
+            5,
+            onServerStateChangedCallback,
+            onErorrCallback,
+            onDataRecivedCallback
+    );
     
     server.addListner(&dataBaseClient);
 
