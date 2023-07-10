@@ -26,15 +26,22 @@ Server::Server(
     m_addres.sin_addr.s_addr = htonl(INADDR_ANY);
     
     if(bind(m_listeningSocket,(struct sockaddr*) &m_addres, sizeof(m_addres)) < 0){
-        onErorrCallback(std::string("Server bind erorr"));
         LOG("Server Bind error when creating server. Port " << port << " is occupied");
-        m_state = FailedToConstruct;
         onServerStateChangedCallback(m_state);
-        return;
+        m_state = FailedToConstruct;
+        switch (errno)
+        {
+            case EINVAL: onErorrCallback(SocketInUse, "Socket is already in use");
+                return;
+            case EACCES: onErorrCallback(AddresIsProtected, "Socket is protected");
+                return;
+            default: onErorrCallback(BindError, "Bind error");
+                return;
+        }
     }
 
     if(listen(m_listeningSocket, backlog) == -1){
-        onErorrCallback(std::string("Server listen start error"));
+        onErorrCallback(static_cast<ErrorCode>(errno), "Server listen start error");
         LOG("Server listen start error");
         m_state = FailedToConstruct;
         onServerStateChangedCallback(m_state);
@@ -62,7 +69,7 @@ Server::~Server(){
 void DachaServer::Server::start()
 {
     if(m_state != Created && m_state != ListenStopped){
-        onErrorCallback("Server: can`t start work");
+        onErrorCallback(StartError, "Server: can`t start work");
         return;
     }
     
@@ -78,7 +85,7 @@ void DachaServer::Server::stop()
 {
     m_isStop = true;
     if(m_state == FailedToConstruct){
-        onErrorCallback("Server: nothing to stop");
+        onErrorCallback(StopError, "Server: nothing to stop");
     }
     m_state = Stopped;
     onServerStateChangedCallback(Stopped);
@@ -175,15 +182,18 @@ void Server::reciveData(SocketDescriptorType newConnection)
     if(!m_isStop){
         if(pollResult != 1){
             std::string errorMassage;
+            ErrorCode errorCode;
             if(pollResult == 0){
                 errorMassage = "poll timeout";
+                errorCode = PollTimeout;
                 LOG("Server: poll timeout on socket #" << newConnection);
             }
             else{
                 errorMassage = "connection error ";
+                errorCode = ConnectionError;
                 LOG("Server: Connection error on socket #" << newConnection);
             }
-            onErrorCallback(errorMassage);
+            onErrorCallback(errorCode, errorMassage);
         }
         else{
             LOG("data successfully read from the socket #" << newConnection);

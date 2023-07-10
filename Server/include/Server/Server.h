@@ -34,18 +34,21 @@ namespace DachaServer
             Destroyed,
         };
 
-        // TODO : энум ошибок 
-        // изменить колбек на ошибки чтоб возращал код ошибки
         // сделать прослушку не локальной
-        // 
+
         enum ErrorCode{
+            SocketInUse,
+            AddresIsProtected,
             BindError,
             StartListenError,
             StartError,
             StopError,
+            PollTimeout,
+            ConnectionError,
+
         };
         using ServerStateChangedCallback = std::function<void (const State)>;
-        using ErrorCallBack = std::function<void (const std::string&)>;
+        using ErrorCallBack = std::function<void (const ErrorCode, const std::string)>;
         using DataReciveCallBack = std::function<void (const SensorMessage&)>;
     public:
         Server(
