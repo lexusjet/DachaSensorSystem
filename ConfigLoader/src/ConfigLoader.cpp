@@ -2,7 +2,7 @@
 #include <nlohmann/json.hpp>
 #include <fstream>
 #include <mutex>
-
+#include <filesystem>
 //PImpl -----------------------------------------------------------
 struct ConfigLoader::PImpl
 {
@@ -22,7 +22,9 @@ public:
     std::string getDatabaseIp()
     {
         std::lock_guard lock(m_jsonMutex);
-        std::fstream jsonFile(m_configName, std::fstream::out);
+        if(!std::filesystem::exists(m_configName))
+            return "";
+        std::fstream jsonFile(m_configName, std::fstream::in);
         if(!jsonFile.is_open())
             return "";
         try
@@ -41,7 +43,9 @@ public:
     std::string getDatabasePort()
     {
         std::lock_guard lock(m_jsonMutex);
-        std::fstream jsonFile(m_configName, std::fstream::out);
+        if(!std::filesystem::exists(m_configName))
+            return "";
+        std::fstream jsonFile(m_configName, std::fstream::in);
         if(!jsonFile.is_open())
             return "";
         try
@@ -60,7 +64,9 @@ public:
     std::string getDatabaseUserName()
     {
         std::lock_guard lock(m_jsonMutex);
-        std::fstream jsonFile(m_configName, std::fstream::out);
+        if(!std::filesystem::exists(m_configName))
+            return "";
+        std::fstream jsonFile(m_configName, std::fstream::in);
         if(!jsonFile.is_open())
             return "";
         try
@@ -79,7 +85,9 @@ public:
     std::string getDatabasePassword()
     {
         std::lock_guard lock(m_jsonMutex);
-        std::fstream jsonFile(m_configName, std::fstream::out);
+        if(!std::filesystem::exists(m_configName))
+            return "";
+        std::fstream jsonFile(m_configName, std::fstream::in);
         if(!jsonFile.is_open())
             return "";
         try
@@ -98,7 +106,9 @@ public:
     std::string getDatabaseName()
     {
         std::lock_guard lock(m_jsonMutex);
-        std::fstream jsonFile(m_configName, std::fstream::out);
+        if(!std::filesystem::exists(m_configName))
+            return "";
+        std::fstream jsonFile(m_configName, std::fstream::in);
         if(!jsonFile.is_open())
             return "";
         try
@@ -118,7 +128,9 @@ public:
     std::string getServerIp()
     {
         std::lock_guard lock(m_jsonMutex);
-        std::fstream jsonFile(m_configName, std::fstream::out);
+        if(!std::filesystem::exists(m_configName))
+            return "";
+        std::fstream jsonFile(m_configName, std::fstream::in);
         if(!jsonFile.is_open())
             return "";
         try
@@ -137,7 +149,9 @@ public:
     std::string getServerPort()
     {
         std::lock_guard lock(m_jsonMutex);
-        std::fstream jsonFile(m_configName, std::fstream::out);
+        if(!std::filesystem::exists(m_configName))
+            return "";
+        std::fstream jsonFile(m_configName, std::fstream::in);
         if(!jsonFile.is_open())
             return "";
         try
@@ -157,7 +171,9 @@ public:
     std::string getLogFileName()
     {
         std::lock_guard lock(m_jsonMutex);
-        std::fstream jsonFile(m_configName, std::fstream::out);
+        if(!std::filesystem::exists(m_configName))
+            return "";
+        std::fstream jsonFile(m_configName, std::fstream::in);
         if(!jsonFile.is_open())
             return "";
         try
