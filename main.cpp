@@ -22,7 +22,7 @@ void signalFunction(int sig)
 {
     std::unique_lock<std::mutex> lock(mtx);
     cv.wait(lock, [](){return !isStop;});
-    isStop = true;
+    isStop.store(true);
     cv.notify_all();
 }
 
@@ -47,7 +47,12 @@ int main(int argc, const char **argv)
 
 
     DachaServer::Server::ErrorCallBack onErorrCallback =
-        [](std::string erorr){ std::cout << erorr << std::endl; };
+        [](const DachaServer::Server::ErrorCode errorCode, const std::string erorr)
+        {
+            isStop.store(true);
+            cv.notify_all();
+            std::cout << erorr << std::endl; 
+        };
     DachaServer::Server::ServerStateChangedCallback onServerStateChangedCallback =
         [](DachaServer::Server::State state){ 
                 switch (state)
