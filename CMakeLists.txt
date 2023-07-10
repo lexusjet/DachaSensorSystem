@@ -40,10 +40,12 @@ add_subdirectory(SensorMessage)
 add_subdirectory(ServerListener)
 add_subdirectory(Server)
 add_subdirectory(DatabaseClient)
+add_subdirectory(ConfigLoader)
 
 add_executable(${PROJECT_NAME} main.cpp)
 
 target_link_libraries(${PROJECT_NAME} 
+    PRIVATE ConfigLoaderLib
     PRIVATE SensorMessageLib
     PRIVATE DatabaseConnectorLib
     PRIVATE ServerListenerLib
