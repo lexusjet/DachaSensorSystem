@@ -6,7 +6,23 @@ from database_client import database_client
 from result_formating import database_result_to_text
 import json 
 
-#функция начала
+
+is_working = True
+
+path_to_bot_config = "./Telegram_bot_python/bot_config.json"
+with open(path_to_bot_config, "r", encoding = "utf-8") as bot_config_file:
+    bot_config = json.load(bot_config_file)
+
+db_client = database_client(
+    bot_config["database"]["host"],
+    bot_config["database"]["port"],
+    bot_config["database"]["user"],
+    bot_config["database"]["password"],
+    bot_config["database"]["database"]
+)
+
+bot = telebot.TeleBot(bot_config['bot']['token'])
+
 @bot.message_handler(commands=['start'])
 def start(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -26,6 +42,9 @@ def get_latest_data(message):
     markup.add(all_button)
     if message.text == 'Все послдение данные':
         data = db_client.get_latest_temerature_data()
+        if len(data) == 0:
+            bot.bot.send_message(message.from_user.id, "Ни каких данных пока нет", reply_markup=markup)
+            return
         anser = database_result_to_text(data)
         bot.send_message(message.from_user.id, anser , parse_mode='HTML', reply_markup=markup)
     else : 
@@ -60,21 +79,24 @@ db_client = database_client(
 
 bot = telebot.TeleBot(bot_config['bot']['token'])
 
-t1 = Thread(target=console_input_worker)
-t1.start()
-print("Bot started ")
+if __name__ == "__main__":
+    t1 = Thread(target=console_input_worker)
+    t1.start()
+    print("Bot started ")
 
-while is_working:
-    users_id = db_client.get_users_id()
-    try:
-        print("Bot polling")
-        bot.polling(none_stop=True, interval = 0)
-    except Exception as exception:
-        print(exception.__traceback__)
+    while is_working:
+        users_id = db_client.get_users_id()
+        try:
+            print("Bot polling")
+            bot.polling(none_stop=True, interval = 0)
+        except Exception as exception:
+            print(exception.__traceback__)
+
+    print("Bot stopped")
+    t1.join()
 
 
-print("Bot stopped")
-t1.join()
+
 
 
 
