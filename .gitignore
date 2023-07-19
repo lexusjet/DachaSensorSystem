@@ -1,6 +1,7 @@
 .vscode
 build*
 __pycache__*
+venv*
 **/*.user*
 config.json
 bot_config.json
