@@ -5,3 +5,5 @@ venv*
 **/*.user*
 config.json
 bot_config.json
+test*
+TestClient*
