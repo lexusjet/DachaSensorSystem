@@ -9,5 +9,5 @@
 * mysqlcppconn 8.0.19
 
 #### Зависимости для тлеграм бота:
-* mysql-connector-python==8.0.32
-* pyTelegramBotAPI==4.12.0
+* mysql-connector-python 8.0.32
+* pyTelegramBotAPI 4.12.0
